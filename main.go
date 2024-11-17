@@ -4,13 +4,19 @@ import (
 	"fib/handlers"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "80"
+	}
 	http.HandleFunc("/fib", handlers.FibonacciHandler)
 
-	log.Println("Starting server on :80")
-	if err := http.ListenAndServe(":80", nil); err != nil {
+	log.Println("Starting HTTP server on :" + port)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
