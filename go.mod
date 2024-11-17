@@ -1,6 +1,6 @@
 module fib
 
-go 1.22.5
+go 1.23
 
 require (
 	github.com/golang/mock v1.6.0 // indirect
