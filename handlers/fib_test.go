@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,12 +13,13 @@ func TestFibonacciHandler(t *testing.T) {
 		name           string
 		queryParam     string
 		expectedStatus int
-		expectedBody   string
+		expectedResult string // JSONの "result" フィールド
+		expectedError  string // JSONの "message" フィールド
 	}{
-		{"Valid small number", "n=5", http.StatusOK, "5"},
-		{"Valid large number", "n=50", http.StatusOK, "12586269025"},
-		{"Invalid negative number", "n=-1", http.StatusBadRequest, "Invalid parameter\n"},
-		{"Invalid non-integer input", "n=abc", http.StatusBadRequest, "Invalid parameter\n"},
+		{"Valid small number", "n=5", http.StatusOK, "5", ""},
+		{"Valid large number", "n=50", http.StatusOK, "12586269025", ""},
+		{"Invalid negative number", "n=-1", http.StatusBadRequest, "", "Bad request"},
+		{"Invalid non-integer input", "n=abc", http.StatusBadRequest, "", "Bad request"},
 	}
 
 	for _, tt := range tests {
@@ -30,13 +32,32 @@ func TestFibonacciHandler(t *testing.T) {
 			res := rec.Result()
 			defer res.Body.Close()
 
+			// ステータスコードのチェック
 			if res.StatusCode != tt.expectedStatus {
 				t.Errorf("expected status %d, got %d", tt.expectedStatus, res.StatusCode)
 			}
 
-			body := rec.Body.String()
-			if body != tt.expectedBody {
-				t.Errorf("expected body %q, got %q", tt.expectedBody, body)
+			// レスポンスボディをJSONとして解析
+			if tt.expectedStatus == http.StatusOK {
+				var resp response
+				if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+					t.Fatalf("failed to decode response: %v", err)
+				}
+
+				// "result" フィールドのチェック
+				if resp.Result.String() != tt.expectedResult {
+					t.Errorf("expected result %q, got %q", tt.expectedResult, resp.Result.String())
+				}
+			} else {
+				var errResp errors
+				if err := json.NewDecoder(res.Body).Decode(&errResp); err != nil {
+					t.Fatalf("failed to decode error response: %v", err)
+				}
+
+				// "message" フィールドのチェック
+				if errResp.Message != tt.expectedError {
+					t.Errorf("expected error message %q, got %q", tt.expectedError, errResp.Message)
+				}
 			}
 		})
 	}
