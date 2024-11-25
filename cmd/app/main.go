@@ -1,17 +1,15 @@
 package main
 
 import (
-	"fib/handlers"
+	"fib/routers"
 	"log"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/fib", handlers.FibonacciHandler)
-
+	router := routers.NewRouter()
 	log.Println("Starting HTTP server on :80")
-	err := http.ListenAndServe(":80", nil)
-	if err != nil {
+	if err := http.ListenAndServe(":80", router); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
