@@ -12,7 +12,7 @@ type SuccessResponse struct {
 }
 
 type ErrorResponse struct {
-	Status  int    `json:"staus"`
+	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
 

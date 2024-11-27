@@ -10,6 +10,7 @@ import (
 )
 
 func FibonacciHandler(w http.ResponseWriter, r *http.Request) {
+	// タイムアウト付きのコンテキストを生成(3秒に設定)
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 	defer cancel()
 
@@ -21,10 +22,13 @@ func FibonacciHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//チャネルを作成
 	resultChan := make(chan *models.FibonacciResult)
 	go func() {
+		//CalculateFibonacci(n)とselect{}を非同期処理
 		result := models.CalculateFibonacci(n)
 		select {
+		//どちらかが完了するのを待機
 		case resultChan <- &models.FibonacciResult{Value: result}:
 		case <-ctx.Done():
 		}
