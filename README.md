@@ -4,13 +4,27 @@
 
 ```
 .
-├── README
+├── Makefile
+├── README.md
+├── cmd
+│   └── app
+│       └── main.go
+├── controllers
+│   ├── fibonacci_controller.go
+│   ├── fibonacci_controller_test.go
+│   └── fibonacci_test_cases.go
 ├── go.mod
 ├── go.sum
-├── handlers
-│   ├── fib.go
-│   └── fib_test.go
-└── main.go
+├── models
+│   ├── fibonacci_model.go
+│   ├── fibonacci_model_test.go
+│   └── fibonacci_testcases.go
+├── routers
+│   └── router.go
+└── views
+    ├── response.go
+    ├── response_test.go
+    └── response_test_cases.go
 ```
 
 ## 使用技術
@@ -44,38 +58,27 @@
     "message": "Bad request"
 }
 ```
+入力 `http://nasu-sv.com/fib?n=10000000`
+```
+{
+    "staus": 408,
+    "message": "Request time out"
+}
+```
 
 ## 解説
-リクエストURLが与えられた時、`main.go`は`handler`ディレクトリの`fib.go`を呼び出し、フィボナッチ計算を行ない、その結果を出力するシステムである。
-
-### main.go
-1. リクエストURLに/fibが含まれる場合 `handlers.FibonacciHandler`が呼び出される
-2. port80を指定してリクエストをリッスン状態にする
-
-### handler.FibonacciHandler関数 
-1. URLのパラメータを`nStr`変数に格納する
-2. `nStr`の値を引数に`fibonacci()`関数を呼び出し計算する
-3. 計算結果を`Json`形式に変換し、出力
-4. errの場合も同様に`Json`形式に変換して出力
-
-### handler.fibnacci関数
-1. 引数の値`n`が 0≦n≦1 であればその値のまま返す
-2. `a`と`b`にそれぞれ`0`と`1`を格納する
-3. `a`に`b`の値を、`b`に`a+b`の値を格納 これを`n`回続けた結果を返す
- 
-※黄金比などを使って一回で計算をしてしまうと、浮動小数表現で誤差が生じてしまい、計算結果がズレる
+リクエストURLが与えられた時、`main.go`は`routers`でルーティングされた関数を呼び出すことによってフィボナッチ計算を行ない、その結果を出力するシステムである。
 
 
-### handler/fib_test.go
-1. `gotests -w -all handlers/fib.go`でtestケース以外を生成       
-2. `TestFibonacciHandler()`関数では各テストケース(n=5,n=50,n=-1,n=abc)に対するレスポンスが正しく動作するかテストする
-3. `TestFibonacci()`関数では各テストケース(n=0,n=1,n=10,n=50,n=100)に対するフィボナッチ数を正しく計算できるかテストする
+### mvcに沿って開発
+**controller**
+- ユーザーからの入力を受け取り、モデルとビューをつなげる役割を果たす。
+- FibonacciHandler 関数は、HTTPリクエストを受け取り、フィボナッチ数を計算するためのモデル関数を呼び出し、その結果をビューで返すという役割を果たす。
 
-mvcをのとって開発するとより可読性が上がる
-- handlersはコントローラー部分
-- アルゴリズム部分はモデル部分
-- testもファイルを分けれるので対称性が上がる
+**model**
+- アプリケーションのビジネスロックを管理する。
+- フィボナッチ数を計算する CalculateFibonacci 関数や、その結果を保持する FibonacciResult 構造体がモデルに該当する。
 
-testパターンを直書きした方が試行錯誤しやすくなる
-
-speeeはaws得意なエンジニアが多い 
+**view**
+- コントローラから受け取った情報を基に、ユーザーに返すレスポンスを生成する。
+- WriteSuccessResponse や WriteErrorResponse などの関数は、HTTPレスポンスを構築し、クライアントに返す内容を定義しています。具体的には、フィボナッチ計算の結果をJSON形式で返すなどが行われる。
