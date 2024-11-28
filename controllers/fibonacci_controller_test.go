@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -21,8 +21,8 @@ func TestFibonacciHandler(t *testing.T) {
 				t.Errorf("expected status %d, got %d", tt.expectedStatus, res.Code)
 			}
 
-			// レスポンスボディのチェック
-			bodyBytes, _ := ioutil.ReadAll(res.Body)
+			// レスポンスボディのチェック(予期しない改行が含まれるため、不要な改行は空白を除去する)
+			bodyBytes, _ := io.ReadAll(res.Body)
 			body := strings.TrimSpace(string(bodyBytes))
 
 			if string(body) != tt.expectedBody {

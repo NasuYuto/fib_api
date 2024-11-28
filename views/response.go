@@ -17,9 +17,12 @@ type ErrorResponse struct {
 }
 
 func WriteSuccessResponse(w http.ResponseWriter, result *big.Int) {
+	//レスポンスの内容がJSONであることを明示
 	w.Header().Set("Content-Type", "application/json")
+	//レスポンスのステータスコードを伝える
 	w.WriteHeader(http.StatusOK)
 
+	//構造体に格納
 	resp := SuccessResponse{Result: result}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		fmt.Printf("Error encoding success response: %v\n", err)

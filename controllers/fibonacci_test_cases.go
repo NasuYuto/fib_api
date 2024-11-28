@@ -21,6 +21,7 @@ var FibonacciTestCases = []struct {
 	{
 		name: "Valid request small number",
 		args: args{
+			//w 記録用レコーダ r リクエスト
 			w: httptest.NewRecorder(),
 			r: httptest.NewRequest(http.MethodGet, "/fib?n=5", nil),
 		},

@@ -16,6 +16,7 @@ func TestWriteSuccessResponse(t *testing.T) {
 			//tt.resultを使ってレスポンスを生成
 			WriteSuccessResponse(recorder, tt.result)
 
+			//レコードに記録された結果を取得
 			res := recorder.Result()
 			//後にリソースを解放
 			defer res.Body.Close()
@@ -38,6 +39,7 @@ func TestWriteErrorResponse(t *testing.T) {
 	for _, tt := range WriteErrorCases {
 		t.Run(tt.name, func(t *testing.T) {
 
+			//HTTPレスポンスを模倣するためのオブジェクト
 			recorder := httptest.NewRecorder()
 			//tt.statusとtt.messageを使ってレスポンスを生成
 			WriteErrorResponse(recorder, tt.status, tt.message)
